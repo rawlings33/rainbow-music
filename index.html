@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rainbow Music — Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#070707;
+      --panel:#0f0f0f;
+      --gold:#d4af37;
+      --muted:#bfb7a1;
+      --glass: rgba(255,255,255,0.03);
+      --card: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      --radius:14px;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:#efece6}
+    a{color:inherit;text-decoration:none}
+
+    /* Layout */
+    .app{display:flex;flex-direction:column;min-height:100vh}
+    header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-bottom:1px solid rgba(255,255,255,0.03);backdrop-filter: blur(4px)}
+    .brand{display:flex;align-items:center;gap:14px}
+    .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#f2d07d);display:flex;align-items:center;justify-content:center;color:#111;font-weight:700;font-size:20px}
+    .title{font-weight:700;font-size:18px}
+    nav{display:flex;gap:16px}
+    nav a{padding:8px 12px;border-radius:10px;color:var(--muted);font-weight:600}
+    nav a.active{color:var(--gold);background:rgba(212,175,55,0.06)}
+
+    main{flex:1;display:flex;padding:28px;gap:28px}
+    .sidebar{width:260px}
+    .card{background:var(--panel);border-radius:var(--radius);padding:18px;box-shadow: 0 6px 24px rgba(0,0,0,0.6)}
+    .search{display:flex;gap:10px;align-items:center;background:var(--glass);padding:10px;border-radius:12px}
+    .search input{flex:1;background:transparent;border:0;outline:none;color:inherit}
+
+    .content{flex:1;display:flex;flex-direction:column;gap:18px}
+
+    /* Featured */
+    .hero{display:flex;gap:18px;align-items:center;padding:18px;background:var(--card);border-radius:12px}
+    .hero-art{width:120px;height:120px;border-radius:12px;background:linear-gradient(135deg,#111,#222);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--gold);font-size:28px}
+    .hero-info h2{margin:0;font-size:20px}
+    .hero-info p{margin:6px 0 0;color:var(--muted)}
+    .hero-actions{margin-left:auto}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+    .btn.primary{background:linear-gradient(90deg,var(--gold),#f2d07d);color:#111;border:0}
+
+    /* Grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+    .album{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;gap:12px;align-items:center}
+    .album-art{width:64px;height:64px;border-radius:8px;background:linear-gradient(135deg,#111,#1a1a1a);display:flex;align-items:center;justify-content:center;color:var(--gold);font-weight:700}
+    .meta{flex:1}
+    .meta h4{margin:0 0 6px 0}
+    .meta p{margin:0;color:var(--muted);font-size:13px}
+
+    /* Now playing bar */
+    .nowbar{position:fixed;left:20px;right:20px;bottom:20px;background:linear-gradient(180deg, rgba(10,10,10,0.8), rgba(5,5,5,0.85));border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:16px;border:1px solid rgba(255,255,255,0.04)}
+    .now-art{width:58px;height:58px;border-radius:10px;background:#111;display:flex;align-items:center;justify-content:center;color:var(--gold);font-weight:700}
+    .now-info{flex:1}
+    .now-info .song{font-weight:700}
+    .controls{display:flex;gap:10px;align-items:center}
+    .play{width:46px;height:46px;border-radius:12px;background:var(--gold);display:flex;align-items:center;justify-content:center;color:#111;font-weight:700;cursor:pointer}
+    .progress{height:6px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden;margin-top:8px}
+    .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--gold),#f2d07d)}
+
+    footer{padding:18px;text-align:center;color:var(--muted);font-size:13px}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .sidebar{display:none}
+      main{padding:16px}
+      .hero-art{width:96px;height:96px}
+    }
+
+    /* Small helpers */
+    .muted{color:var(--muted)}
+    .tag{font-size:12px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);display:inline-block}
+    .center{display:flex;align-items:center;justify-content:center}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">RM</div>
+        <div>
+          <div class="title">Rainbow Music</div>
+          <div class="muted" style="font-size:12px">Church Choir Streaming & Monetization</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#" class="nav-link active" data-target="home">Home</a>
+        <a href="#" class="nav-link" data-target="library">Library</a>
+        <a href="#" class="nav-link" data-target="about">About</a>
+      </nav>
+    </header>
+
+    <main>
+      <aside class="sidebar">
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:10px">Search</div>
+          <div class="search"><input id="search" placeholder="Search songs, artists..."/></div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:10px">Quick Links</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <a class="tag">Create Release</a>
+            <a class="tag">Analytics</a>
+            <a class="tag">Monetization</a>
+            <a class="tag">Settings</a>
+          </div>
+        </div>
+      </aside>
+
+      <section class="content">
+        <!-- Home -->
+        <div id="home" class="view">
+          <div class="hero card">
+            <div class="hero-art">RV</div>
+            <div class="hero-info">
+              <h2>Featured — Sunday Praise Collection</h2>
+              <p class="muted">A curated set of choir performances ready for streaming and monetization.</p>
+              <div style="margin-top:10px">
+                <button class="btn primary" id="hero-play">Play Collection</button>
+                <button class="btn" style="margin-left:8px">Pitch Deck</button>
+              </div>
+            </div>
+            <div class="hero-actions">
+              <div class="muted">Active listeners</div>
+              <div style="font-weight:700;font-size:18px">1.2K+</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <h3 style="margin:0">Popular Choir Songs</h3>
+            <div class="muted">Updated today</div>
+          </div>
+
+          <div class="grid" id="songs-grid">
+            <!-- albums / songs inserted by JS -->
+          </div>
+        </div>
+
+        <!-- Library -->
+        <div id="library" class="view" style="display:none">
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <h3 style="margin:0">Library</h3>
+                <div class="muted" style="margin-top:6px">All choir releases and tracks</div>
+              </div>
+              <button class="btn">Upload Release</button>
+            </div>
+
+            <div style="margin-top:14px">
+              <table style="width:100%;border-collapse:collapse">
+                <thead style="text-align:left;color:var(--muted);font-size:13px">
+                  <tr><th>#</th><th>Title</th><th>Artist</th><th>Duration</th><th></th></tr>
+                </thead>
+                <tbody id="lib-table" style="margin-top:12px">
+                  <!-- rows from JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- About -->
+        <div id="about" class="view" style="display:none">
+          <div class="card">
+            <h3 style="margin:0">About Rainbow Music</h3>
+            <p class="muted" style="margin-top:10px">Rainbow Music helps church choirs professionally publish, stream and monetize their music while retaining ownership and royalties. Great for building community support and generating recurring income.</p>
+            <div style="display:flex;gap:14px;margin-top:16px">
+              <div style="flex:1">
+                <div style="font-weight:700">Monetization</div>
+                <div class="muted">Subscriptions, donations, pay-per-track, and licensing</div>
+              </div>
+              <div style="flex:1">
+                <div style="font-weight:700">Analytics</div>
+                <div class="muted">Plays, earnings, listener locations</div>
+              </div>
+            </div>
+            <div style="margin-top:16px">
+              <button class="btn primary">Request Demo Access</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <footer>&copy; <span id="year"></span> Rainbow Music — Demo for investors</footer>
+
+    <!-- Now playing bar -->
+    <div class="nowbar" id="nowbar">
+      <div class="now-art">RM</div>
+      <div class="now-info">
+        <div class="song" id="now-song">Not playing</div>
+        <div class="muted" id="now-artist">—</div>
+        <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+      </div>
+      <div class="controls">
+        <div class="center muted">0:00</div>
+        <div class="play" id="playbtn">►</div>
+        <div class="center muted">3:30</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock data
+    const songs = [
+      {id:1,title:'Psalm of Hope',artist:'Rainbow Choir',duration:'3:12'},
+      {id:2,title:'Victory Anthem',artist:'Rainbow Choir',duration:'4:03'},
+      {id:3,title:'Worship Rising',artist:'Choir Ensemble',duration:'2:58'},
+      {id:4,title:'Grace Flow',artist:'Youth Chorus',duration:'3:40'},
+      {id:5,title:'Hallelujah Ring',artist:'Choir Ensemble',duration:'3:05'},
+      {id:6,title:'Peace Be Still',artist:'Rainbow Choir',duration:'4:20'}
+    ];
+
+    // Elements
+    const grid = document.getElementById('songs-grid');
+    const libTable = document.getElementById('lib-table');
+    const year = document.getElementById('year'); year.textContent = new Date().getFullYear();
+
+    // Render grid
+    function renderGrid(list){
+      grid.innerHTML = '';
+      list.forEach(s=>{
+        const el = document.createElement('div'); el.className='album card';
+        el.innerHTML = `
+          <div class="album-art">${s.title.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+          <div class="meta">
+            <h4>${s.title}</h4>
+            <p>${s.artist} · <span class="muted">${s.duration}</span></p>
+          </div>
+          <div>
+            <button class="btn" data-id="${s.id}">Play</button>
+          </div>
+        `;
+        grid.appendChild(el);
+      });
+    }
+
+    // Render library table
+    function renderLib(list){
+      libTable.innerHTML='';
+      list.forEach((s,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="padding:10px">${i+1}</td>
+          <td style="padding:10px">${s.title}</td>
+          <td style="padding:10px">${s.artist}</td>
+          <td style="padding:10px">${s.duration}</td>
+          <td style="padding:10px"><button class="btn" data-id="${s.id}">Play</button></td>
+        `;
+        libTable.appendChild(tr);
+      });
+    }
+
+    renderGrid(songs);
+    renderLib(songs);
+
+    // Simple SPA nav
+    document.querySelectorAll('.nav-link').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));
+        a.classList.add('active');
+        const target = a.dataset.target;
+        document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+        document.getElementById(target).style.display='block';
+      });
+    });
+
+    // Search
+    document.getElementById('search').addEventListener('input', (e)=>{
+      const q = e.target.value.toLowerCase();
+      const filtered = songs.filter(s=> (s.title + ' ' + s.artist).toLowerCase().includes(q));
+      renderGrid(filtered);
+      renderLib(filtered);
+    });
+
+    // Now playing simulation using Web Audio (short tone loop) — this avoids external audio files
+    let audioCtx = null;
+    let osc = null;
+    let playing = false;
+    let current = null;
+    let progEl = document.getElementById('prog');
+
+    function startTone(){
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type='sine';
+      osc.frequency.value = 440; // A4
+      gain.gain.value = 0.0001; // very low so it's not loud; demo only
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+    }
+    function stopTone(){
+      if(osc) { try{osc.stop()}catch(e){} osc.disconnect(); osc=null }
+    }
+
+    function playSongById(id){
+      const s = songs.find(x=>x.id==id);
+      if(!s) return;
+      document.getElementById('now-song').textContent = s.title;
+      document.getElementById('now-artist').textContent = s.artist;
+      current = s;
+      // reset progress
+      progEl.style.width = '0%';
+      // simulate duration
+      const parts = s.duration.split(':');
+      const total = parseInt(parts[0])*60 + parseInt(parts[1]);
+      // start tone
+      if(!playing){ togglePlay(true) }
+      // animate progress
+      animateProgress(total);
+    }
+
+    function animateProgress(total){
+      let start = Date.now();
+      function tick(){
+        if(!playing) return;
+        const elapsed = (Date.now()-start)/1000; // seconds
+        const pct = Math.min(100, (elapsed/total)*100);
+        progEl.style.width = pct + '%';
+        if(pct >= 100){
+          // stop
+          togglePlay(false);
+          progEl.style.width = '0%';
+          document.getElementById('now-song').textContent = 'Not playing';
+          document.getElementById('now-artist').textContent = '—';
+          return;
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // Play buttons
+    document.addEventListener('click',(e)=>{
+      const btn = e.target.closest('button');
+      if(!btn) return;
+      const id = btn.dataset.id;
+      if(id) playSongById(id);
+      if(btn.id === 'hero-play'){
+        // hero plays first 3 items as a collection
+        playSongById(songs[0].id);
+      }
+    });
+
+    // Play/pause control
+    const playbtn = document.getElementById('playbtn');
+    function togglePlay(force){
+      if(typeof force === 'boolean'){
+        playing = force;
+      } else {
+        playing = !playing;
+      }
+      if(playing){
+        playbtn.textContent = '❚❚';
+        startTone();
+      } else {
+        playbtn.textContent = '►';
+        stopTone();
+      }
+    }
+    playbtn.addEventListener('click', ()=>{
+      togglePlay();
+    });
+
+    // Small UX: keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if(e.key === ' '){ e.preventDefault(); togglePlay(); }
+    });
+
+    // Accessibility: focus first button
+    window.addEventListener('load', ()=>{
+      const first = document.querySelector('button'); if(first) first.focus();
+    });
+
+  </script>
+</body>
+</html>
